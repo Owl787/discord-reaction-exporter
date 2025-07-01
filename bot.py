@@ -3,12 +3,11 @@ import discord
 from discord.ext import commands
 from collections import defaultdict
 from dotenv import load_dotenv
-import time
 
 load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
-CONTROL_CHANNEL_ID = 1380601250306986065  # Replace with your control channel ID
+CONTROL_CHANNEL_ID = 1380601250306986065  # 🔁 Replace with your control channel ID
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -19,7 +18,8 @@ intents.messages = True
 
 bot = commands.Bot(command_prefix='P', intents=intents)
 
-tracked_reactions = defaultdict(set)  # Store reactions per message
+# Store reactions per message
+tracked_reactions = defaultdict(set)
 
 @bot.event
 async def on_ready():
@@ -30,6 +30,7 @@ async def on_raw_reaction_add(payload):
     user_id = payload.user_id
     message_id = payload.message_id
 
+    # Ignore bot's own reactions
     if user_id == bot.user.id:
         return
 
@@ -46,15 +47,6 @@ async def on_message(message):
     if not message.content.startswith("P "):
         return
 
-    now = time.time()
-    last_used = user_cooldowns[message.author.id]
-    if now - last_used < COOLDOWN_SECONDS:
-        remaining = int(COOLDOWN_SECONDS - (now - last_used))
-        await message.channel.send(f"⏳ Please wait {remaining}s before using `P` again.")
-        return
-
-    user_cooldowns[message.author.id] = now
-
     try:
         parts = message.content.strip().split()
         if len(parts) != 2:
@@ -68,13 +60,13 @@ async def on_message(message):
         reacted_users = list(tracked_reactions[msg_id])
         already_sent = set()
 
-        # First: Send P <user_id> for all who reacted
+        # Post P <user_id> for all who reacted
         for uid in reacted_users:
             if uid not in already_sent:
                 await message.channel.send(f"P {uid}")
                 already_sent.add(uid)
 
-        # Then: Send P <user_id> for users who reacted for each other
+        # Then post P <user_id> for users who reacted for each other
         for uid in reacted_users:
             for other_uid in reacted_users:
                 if other_uid != uid and other_uid not in already_sent:
@@ -84,6 +76,7 @@ async def on_message(message):
     except Exception as e:
         await message.channel.send(f"❌ Error: {e}")
 
+# Ensure token is set
 if not TOKEN:
     raise RuntimeError("DISCORD_TOKEN not set in .env file!")
 
