@@ -8,7 +8,7 @@ import time
 load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
-CONTROL_CHANNEL_ID = 1389308377909166110  # Replace with your control channel ID
+CONTROL_CHANNEL_ID = 1380601250306986065  # Replace with your control channel ID
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -20,9 +20,6 @@ intents.messages = True
 bot = commands.Bot(command_prefix='P', intents=intents)
 
 tracked_reactions = defaultdict(set)  # Store reactions per message
-user_cooldowns = defaultdict(lambda: 0)  # Store user cooldown timestamps
-
-COOLDOWN_SECONDS = 25  # ⏱️ Updated to 25 seconds
 
 @bot.event
 async def on_ready():
