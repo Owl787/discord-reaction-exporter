@@ -1,6 +1,9 @@
 import discord
 from discord.ext import commands
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 TOKEN = os.getenv('TOKEN')
 GUILD_ID = int(os.getenv('GUILD_ID'))
@@ -30,8 +33,10 @@ async def on_ready():
             if not user.bot:
                 all_user_ids.add(user.id)
 
-    for user_id in all_user_ids:
-        print(f"#p {user_id}")
+    with open("output.txt", "w") as f:
+        for user_id in all_user_ids:
+            f.write(f"#p {user_id}\n")
+            print(f"#p {user_id}")
 
     await bot.close()
 
